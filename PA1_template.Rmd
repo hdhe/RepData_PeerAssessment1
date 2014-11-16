@@ -1,25 +1,89 @@
 ---
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
+title: "Activity Monitoring Devices Analysis"
+output: html_document
 ---
 
+## Reproducible Research - Data Science Specialization
 
-## Loading and preprocessing the data
+### Project I
 
-
-
-## What is mean total number of steps taken per day?
-
+This project makes use of data from a personal activity monitoring device . This device collects data at 5 miute intervals through out the day. The data consists of two months of data from an anonymous individual collected during de months of October and November, 2012 and include the number of steps taken in 5 minute intervals each day.
 
 
-## What is the average daily activity pattern?
+### Loading and preprocessing data
+
+First we load the data collected from the motion device:
+
+```{r}
+
+mov <- read.csv("c:/activity.csv", header=TRUE, sep="," , quote = "\"")
+mov$date <- as.Date(mov$date, format="%Y/%m%d")
+```
 
 
+### Total steps per day
 
-## Imputing missing values
+We are interested in the mean total number of steps taken per day. In this case we exclude the missing values>
+
+```{r}
+hist(mov$steps, col="blue",main = "Total Steps", xlab="Steps")
+```
+
+We also calculate the mean and median of the total steps
+
+```{r}
+mean_mov <- mean(mov$steps, na.rm=TRUE)
+mean_mov
+
+median_mov <- median(mov$steps, na.rm=TRUE)
+median_mov
+```
 
 
+###Daily Activity Pattern
 
-## Are there differences in activity patterns between weekdays and weekends?
+We make a time series of the 5 minute interval (x-axis) and the average number of steps taken (y-axis)
+
+```{r}
+library(ggplot2)
+qplot(interval,steps, data=mov )
+```
+
+
+###Missing Values
+
+We calculate the missing values in the data set:
+```{r}
+summary(mov)
+```
+
+We are going to create a new data set replacing the values of NA in the steps column for the average 5 minute interval value
+
+```{r}
+new_mov <- mov
+new_mov$steps[is.na(new_mov$steps)] <- mean_mov
+summary(new_mov)
+```
+
+We calculate again the histogram, mean and median with the new data set
+
+```{r}
+hist(new_mov$steps, col="blue",main = "Total Steps", xlab="Steps")
+mean_new_mov <- mean(new_mov$steps, na.rm=TRUE)
+mean_new_mov
+
+median_new_mov <- median(new_mov$steps, na.rm=TRUE)
+median_new_mov
+```
+
+As observed, the replace method used has no impact on the mean, but increase the frecuency of the first range of observations
+
+
+### Differences in activity patterns
+
+We include a weekday column in the mov data set
+
+```{r}
+mov$weekday <- weekdays(mov$date)
+summary(mov)
+```
